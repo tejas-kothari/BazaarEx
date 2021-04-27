@@ -1,0 +1,5 @@
+# Config.toml
+modules_dir = "artifacts/"
+
+[[module]]
+    name = "xpact"
