@@ -7,13 +7,41 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "fce-sqlite-connector"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c02ba19dff7f195418416b249423384761a964447dc40e7427f448687ac60b56"
+dependencies = [
+ "fluence 0.4.2",
+]
+
+[[package]]
+name = "fluence"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31068fe4873478f9c59f01230dc6f23d504d8c11a36d6b6c51693b20c6d2570e"
+dependencies = [
+ "fluence-sdk-macro 0.4.2",
+ "fluence-sdk-main 0.4.2",
+]
+
+[[package]]
 name = "fluence"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "342831732a977f13220ecd6f25c7e6b6127af8d3794d42e3c880b05e457a0484"
 dependencies = [
- "fluence-sdk-macro",
- "fluence-sdk-main",
+ "fluence-sdk-macro 0.5.0",
+ "fluence-sdk-main 0.5.0",
+]
+
+[[package]]
+name = "fluence-sdk-macro"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76ce80dc2d7c3db828fb31b95e75c372fde7a9a25dfa2b0d9beac07379b890a6"
+dependencies = [
+ "fluence-sdk-wit 0.4.2",
 ]
 
 [[package]]
@@ -22,7 +50,18 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "00c840552e5e58b62d4a272e3e4aabd548e1a4519df629a51d42157c7ecbe653"
 dependencies = [
- "fluence-sdk-wit",
+ "fluence-sdk-wit 0.5.0",
+]
+
+[[package]]
+name = "fluence-sdk-main"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29cce53288e08ed86ebe36c64d8eb641a95e1d0f7f75da969b29e16ab0d7d406"
+dependencies = [
+ "fluence-sdk-macro 0.4.2",
+ "log",
+ "serde",
 ]
 
 [[package]]
@@ -31,9 +70,23 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f1d126f05a798c8f812fbe47a42145478ce8029e00411b04d1c5194ab368313"
 dependencies = [
- "fluence-sdk-macro",
+ "fluence-sdk-macro 0.5.0",
  "log",
  "serde",
+]
+
+[[package]]
+name = "fluence-sdk-wit"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56d835812bab8fb6f261b9e37355b9bf0a28a16123580145ce0fe44ef4363144"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn",
+ "uuid",
 ]
 
 [[package]]
@@ -173,6 +226,7 @@ checksum = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6"
 name = "xpact"
 version = "0.1.0"
 dependencies = [
- "fluence",
+ "fce-sqlite-connector",
+ "fluence 0.5.0",
  "log",
 ]

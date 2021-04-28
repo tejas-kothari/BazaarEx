@@ -1,6 +1,8 @@
 use fluence::fce;
 use fluence::module_manifest;
 
+mod db;
+
 module_manifest!();
 
 pub fn main() {}
