@@ -1,8 +1,7 @@
 #!/bin/sh
-# This script builds all sub-projects and puts our Wasm module(s) in a high-level dir
 
-fce build --release                                            # 1
+fce build --release
 
-mkdir -p artifacts                                             # 2
+mkdir -p artifacts
 rm artifacts/*                                                                                          
-cp target/wasm32-wasi/release/xpact.wasm artifacts/            # 3
+cp target/wasm32-wasi/release/xpact.wasm artifacts/

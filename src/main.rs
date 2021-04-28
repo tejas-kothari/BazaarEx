@@ -1,11 +1,11 @@
-use fluence::fce;                               // 1
-use fluence::module_manifest;                   // 2
+use fluence::fce;
+use fluence::module_manifest;
 
-module_manifest!();                             // 3
+module_manifest!();
 
-pub fn main() {}                                // 4
+pub fn main() {}
 
-#[fce]                                          // 5
+#[fce]
 pub fn greeting(name: String) -> String {
     format!("Hi, {}", name)
 }
