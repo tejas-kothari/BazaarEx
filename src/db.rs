@@ -1,21 +1,14 @@
-use fluence::fce;
 use fce_sqlite_connector;
-use fce_sqlite_connector::{Connection};
+use fce_sqlite_connector::{Connection, Error};
+use std::result::Result;
 
 const DB_PATH: &str  = "/tmp/fluence_service_db.sqlite";
 
-fn get_connection() -> Connection {
+pub fn get_connection() -> Connection {
     Connection::open(DB_PATH).unwrap()
 }
 
-#[fce]
-#[derive(Debug)]
-pub struct InitResult {
-    pub success: bool,
-    pub err_msg: String,
-}
-
-pub fn create_table(conn: &Connection) -> Vec<std::result::Result<(), fce_sqlite_connector::Error>> {
+pub fn create_table(conn: &Connection) -> Vec<Result<(), Error>> {
     let res = conn.execute(
         "
         create table if not exists users (
@@ -30,8 +23,9 @@ pub fn create_table(conn: &Connection) -> Vec<std::result::Result<(), fce_sqlite
         create table if not exists items (
             uuid INTEGER not null primary key, 
             name TEXT not null,
-            description TEXT,
+            pickup_location TEXT not null,
             price INTEGER not null,
+            description TEXT,
             seller_id TEXT not null,
             FOREIGN KEY (seller_id)
                 REFERENCES users (uuid)
@@ -42,16 +36,16 @@ pub fn create_table(conn: &Connection) -> Vec<std::result::Result<(), fce_sqlite
     vec![res, res2]
 }
 
-#[fce]
-pub fn init_service() -> InitResult {
-    let conn = get_connection();
-    let res = create_table(&conn);
+pub fn add_user(conn: &Connection, stellar_pk: String, name: String) -> Result<(), Error> {
+    let res = conn.execute(format!(
+            "
+            insert into users (uuid, name)
+            values ('{}', '{}');
+            ",
+            stellar_pk,
+            name
+        )
+    );
 
-    for curr_res in res.iter() {
-        if curr_res.is_err() {
-            return InitResult {success: false, err_msg: "Failure to create tables".into()};
-        }
-    }
-
-    InitResult {success: true, err_msg: "".into()}
+    res
 }
