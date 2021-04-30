@@ -49,3 +49,18 @@ pub fn add_user(conn: &Connection, stellar_pk: String, name: String) -> Result<(
 
     res
 }
+
+pub fn get_users(conn: &Connection) -> Vec<String> {
+    let mut cursor = conn.prepare(
+        "
+        select * from users;
+        "
+    ).unwrap().cursor();
+
+    let mut names = Vec::new();
+    while let Some(row) = cursor.next().unwrap() {
+        names.push(row[0].as_string().unwrap().into())
+    }
+
+    names
+}

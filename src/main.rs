@@ -38,8 +38,16 @@ pub fn register_user(stellar_pk: String, name: String) -> IFResult {
     let conn = db::get_connection();
     let res = db::add_user(&conn, stellar_pk, name);
     if res.is_err() {
-        return IFResult {success: false, err_msg: "Failure to create tables".into()};
+        return IFResult {success: false, err_msg: "Failure to add user".into()};
     }
 
     IFResult {success: true, err_msg: "".into()}
+}
+
+#[fce]
+pub fn list_users() -> Vec<String>  {
+    let conn = db::get_connection();
+    let users = db::get_users(&conn);
+
+    users
 }
