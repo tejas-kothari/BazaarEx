@@ -1,6 +1,7 @@
 use fluence::fce;
 use fluence::module_manifest;
 
+use crate::db::Item;
 mod db;
 
 module_manifest!();
@@ -65,7 +66,7 @@ pub fn list_users() -> Vec<String>  {
 }
 
 #[fce]
-pub fn post_item(user_id: String, name: String, pickup_location: String, price: u32, description: String) -> IFResult {
+pub fn post_item(user_id: String, name: String, pickup_location: String, price: f64, description: String) -> IFResult {
     let conn = db::get_connection();
     let res = db::add_item(&conn, user_id, name, pickup_location, price, description);
 
@@ -73,4 +74,12 @@ pub fn post_item(user_id: String, name: String, pickup_location: String, price: 
         Ok(_v) => return IFResult {success: true, err_msg: "".into()},
         Err(e) => return IFResult {success: false, err_msg: e.to_string()}
     }
+}
+
+#[fce]
+pub fn list_items() -> Vec<db::Item> {
+    let conn = db::get_connection();
+    let items = db::get_items(&conn);
+
+    items
 }

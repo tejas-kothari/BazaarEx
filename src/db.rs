@@ -1,3 +1,4 @@
+use fluence::fce;
 use fce_sqlite_connector;
 use fce_sqlite_connector::{Connection, Error};
 use std::result::Result;
@@ -76,7 +77,7 @@ pub fn get_users(conn: &Connection) -> Vec<String> {
     names
 }
 
-pub fn add_item(conn: &Connection, seller_id: String, name: String, pickup_location: String, price: u32, description: String) -> Result<(), Error> {
+pub fn add_item(conn: &Connection, seller_id: String, name: String, pickup_location: String, price: f64, description: String) -> Result<(), Error> {
     let res = conn.execute(format!(
             "
             insert into items (name, pickup_location, price, description, seller_id)
@@ -91,4 +92,28 @@ pub fn add_item(conn: &Connection, seller_id: String, name: String, pickup_locat
     );
 
     res
+}
+
+#[fce]
+#[derive(Debug)]
+pub struct Item {
+    pub name: String,
+    pub pickup_location: String,
+    pub price: f64,
+    pub description: String
+} 
+
+pub fn get_items(conn: &Connection) ->Vec<Item>  {
+    let mut cursor = conn.prepare(
+        "
+        select name, pickup_location, price, description from items;
+        "
+    ).unwrap().cursor();
+
+    let mut items = Vec::new();
+    while let Some(row) = cursor.next().unwrap() {
+        items.push(Item {name: row[0].as_string().unwrap().into(), pickup_location: row[1].as_string().unwrap().into(), price: row[2].as_float().unwrap().into(), description: row[3].as_string().unwrap().into()})
+    }
+
+    items
 }
