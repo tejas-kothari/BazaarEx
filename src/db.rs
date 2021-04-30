@@ -13,7 +13,7 @@ pub fn create_table(conn: &Connection) -> Vec<Result<(), Error>> {
     let res = conn.execute(
         "
         create table if not exists users (
-            uuid TEXT not null primary key, 
+            uuid TEXT not null primary key , 
             name TEXT not null
         );
         "
@@ -22,7 +22,7 @@ pub fn create_table(conn: &Connection) -> Vec<Result<(), Error>> {
     let res2 = conn.execute(
         "
         create table if not exists items (
-            uuid INTEGER not null primary key, 
+            uuid INTEGER not null primary key AUTO_INCREMENT, 
             name TEXT not null,
             pickup_location TEXT not null,
             price INTEGER not null,
@@ -97,6 +97,7 @@ pub fn add_item(conn: &Connection, seller_id: String, name: String, pickup_locat
 #[fce]
 #[derive(Debug)]
 pub struct Item {
+    pub uuid: i64,
     pub name: String,
     pub pickup_location: String,
     pub price: f64,
@@ -106,13 +107,13 @@ pub struct Item {
 pub fn get_items(conn: &Connection) ->Vec<Item>  {
     let mut cursor = conn.prepare(
         "
-        select name, pickup_location, price, description from items;
+        select uuid, name, pickup_location, price, description from items;
         "
     ).unwrap().cursor();
 
     let mut items = Vec::new();
     while let Some(row) = cursor.next().unwrap() {
-        items.push(Item {name: row[0].as_string().unwrap().into(), pickup_location: row[1].as_string().unwrap().into(), price: row[2].as_float().unwrap().into(), description: row[3].as_string().unwrap().into()})
+        items.push(Item {uuid: row[0].as_integer().unwrap().into(), name: row[1].as_string().unwrap().into(), pickup_location: row[2].as_string().unwrap().into(), price: row[3].as_float().unwrap().into(), description: row[4].as_string().unwrap().into()})
     }
 
     items
