@@ -25,8 +25,9 @@ pub fn init_service() -> IFResult {
     let res = db::create_table(&conn);
 
     for curr_res in res.iter() {
-        if curr_res.is_err() {
-            return IFResult {success: false, err_msg: "Failure to create tables".into()};
+        match curr_res {
+            Ok(_v) => (),
+            Err(e) => return IFResult {success: false, err_msg: e.to_string()}
         }
     }
 
@@ -34,14 +35,25 @@ pub fn init_service() -> IFResult {
 }
 
 #[fce]
+pub fn reset_service() -> IFResult {
+    let conn = db::get_connection();
+    let res = db::delete_tables(&conn);
+
+    match res {
+        Ok(_v) => return IFResult {success: true, err_msg: "".into()},
+        Err(e) => return IFResult {success: false, err_msg: e.to_string()} 
+    }
+}
+
+#[fce]
 pub fn register_user(stellar_pk: String, name: String) -> IFResult {
     let conn = db::get_connection();
     let res = db::add_user(&conn, stellar_pk, name);
-    if res.is_err() {
-        return IFResult {success: false, err_msg: "Failure to add user".into()};
-    }
 
-    IFResult {success: true, err_msg: "".into()}
+    match res {
+        Ok(_v) => return IFResult {success: true, err_msg: "".into()},
+        Err(e) => return IFResult {success: false, err_msg: e.to_string()}
+    }
 }
 
 #[fce]
@@ -50,4 +62,15 @@ pub fn list_users() -> Vec<String>  {
     let users = db::get_users(&conn);
 
     users
+}
+
+#[fce]
+pub fn post_item(user_id: String, name: String, pickup_location: String, price: u32, description: String) -> IFResult {
+    let conn = db::get_connection();
+    let res = db::add_item(&conn, user_id, name, pickup_location, price, description);
+
+    match res {
+        Ok(_v) => return IFResult {success: true, err_msg: "".into()},
+        Err(e) => return IFResult {success: false, err_msg: e.to_string()}
+    }
 }

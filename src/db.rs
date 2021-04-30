@@ -36,6 +36,17 @@ pub fn create_table(conn: &Connection) -> Vec<Result<(), Error>> {
     vec![res, res2]
 }
 
+pub fn delete_tables(conn: &Connection) -> Result<(), Error> {
+    let res = conn.execute(
+        "
+        drop table if exists items;
+        drop table if exists users;
+        "
+    );
+
+    res
+}
+
 pub fn add_user(conn: &Connection, stellar_pk: String, name: String) -> Result<(), Error> {
     let res = conn.execute(format!(
             "
@@ -63,4 +74,21 @@ pub fn get_users(conn: &Connection) -> Vec<String> {
     }
 
     names
+}
+
+pub fn add_item(conn: &Connection, seller_id: String, name: String, pickup_location: String, price: u32, description: String) -> Result<(), Error> {
+    let res = conn.execute(format!(
+            "
+            insert into items (name, pickup_location, price, description, seller_id)
+            values ('{}', '{}', {}, '{}', '{}');
+            ",
+            name,
+            pickup_location,
+            price,
+            description,
+            seller_id
+        )
+    );
+
+    res
 }
