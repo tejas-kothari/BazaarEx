@@ -85,9 +85,9 @@ pub fn list_items() -> Vec<db::Item> {
 }
 
 #[fce]
-pub fn buy_item(user_id: String, item_id: i64, delivery_location: String) -> IFResult {
+pub fn buy_item(user_id: String, item_id: i64, dropoff_location: String) -> IFResult {
     let conn = db::get_connection();
-    let res = db::add_to_purchase(&conn, user_id, item_id, delivery_location);
+    let res = db::add_buying_info(&conn, user_id, item_id, dropoff_location);
 
     match res {
         Ok(_v) => return IFResult {success: true, err_msg: "".into()},
