@@ -94,3 +94,14 @@ pub fn buy_item(user_id: String, item_id: i64, dropoff_location: String) -> IFRe
         Err(e) => return IFResult {success: false, err_msg: e.to_string()}
     }
 }
+
+#[fce]
+pub fn pickup_item(user_id: String, item_id: i64) -> IFResult {
+    let conn = db::get_connection();
+    let res = db::add_deliver_info(&conn, user_id, item_id);
+
+    match res {
+        Ok(_v) => return IFResult {success: true, err_msg: "".into()},
+        Err(e) => return IFResult {success: false, err_msg: e.to_string()}
+    }
+}

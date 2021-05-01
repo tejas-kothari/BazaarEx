@@ -143,3 +143,19 @@ pub fn add_buying_info(conn: &Connection, buyer_id: String, item_id: i64, dropof
 
     res
 }
+
+pub fn add_deliver_info(conn: &Connection, deliverer_id: String, item_id: i64) -> Result<(), Error> {
+    let res = conn.execute(format!(
+            "
+            update items
+            SET deliverer_id = '{}'
+            where 
+                uuid = {};
+            ",
+            deliverer_id,
+            item_id
+        )
+    );
+
+    res
+}
