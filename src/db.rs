@@ -108,19 +108,34 @@ pub struct Item {
     pub name: String,
     pub pickup_location: String,
     pub price: f64,
-    pub description: String
+    pub description: String,
+    pub seller_id: String,
+    pub buyer_id: String,
+    pub deliverer_id: String,
+    pub dropoff_location: String
 } 
+
+pub fn get_val(s: Option<&str>) -> String {
+    match s {
+        Some(k) => k.to_string(),
+        None => "NA".to_string()
+    }
+}
 
 pub fn get_items(conn: &Connection) ->Vec<Item>  {
     let mut cursor = conn.prepare(
         "
-        select uuid, name, pickup_location, price, description from items;
+        select uuid, name, pickup_location, price, description, seller_id, buyer_id, deliverer_id, dropoff_location from items;
         "
     ).unwrap().cursor();
 
     let mut items = Vec::new();
     while let Some(row) = cursor.next().unwrap() {
-        items.push(Item {uuid: row[0].as_integer().unwrap().into(), name: row[1].as_string().unwrap().into(), pickup_location: row[2].as_string().unwrap().into(), price: row[3].as_float().unwrap().into(), description: row[4].as_string().unwrap().into()})
+        items.push(Item {uuid: row[0].as_integer().unwrap().into(), name: row[1].as_string().unwrap().into(), 
+            pickup_location: row[2].as_string().unwrap().into(), price: row[3].as_float().unwrap().into(), 
+            description: get_val(row[4].as_string()), seller_id: row[5].as_string().unwrap().into(), 
+            buyer_id: get_val(row[6].as_string().into()), deliverer_id: get_val(row[7].as_string().into()),
+            dropoff_location: get_val(row[8].as_string().into())})
     }
 
     items
