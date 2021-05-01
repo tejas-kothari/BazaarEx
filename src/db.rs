@@ -22,7 +22,7 @@ pub fn create_table(conn: &Connection) -> Vec<Result<(), Error>> {
     let res2 = conn.execute(
         "
         create table if not exists items (
-            uuid INTEGER not null primary key AUTO_INCREMENT, 
+            uuid INTEGER not null primary key AUTOINCREMENT, 
             name TEXT not null,
             pickup_location TEXT not null,
             price INTEGER not null,
@@ -34,12 +34,28 @@ pub fn create_table(conn: &Connection) -> Vec<Result<(), Error>> {
         "
     );
 
-    vec![res, res2]
+    let res3 = conn.execute(
+        "
+        create table if not exists purchases (
+            uuid INTEGER not null primary key AUTOINCREMENT, 
+            item_id INTEGER not null,
+            buyer_id TEXT not null,
+            delivery_location TEXT not null,
+            FOREIGN KEY (item_id)
+                REFERENCES items (uuid),
+            FOREIGN KEY (buyer_id)
+                REFERENCES users (uuid)
+        );
+        "
+    );
+
+    vec![res, res2, res3]
 }
 
 pub fn delete_tables(conn: &Connection) -> Result<(), Error> {
     let res = conn.execute(
         "
+        drop table if exists purchases;
         drop table if exists items;
         drop table if exists users;
         "
@@ -117,4 +133,19 @@ pub fn get_items(conn: &Connection) ->Vec<Item>  {
     }
 
     items
+}
+
+pub fn add_to_purchase(conn: &Connection, buyer_id: String, item_id: i64, delivery_location: String) -> Result<(), Error> {
+    let res = conn.execute(format!(
+            "
+            insert into purchases (item_id, buyer_id, delivery_location)
+            values ({}, '{}', '{}');
+            ",
+            item_id,
+            buyer_id,
+            delivery_location
+        )
+    );
+
+    res
 }
