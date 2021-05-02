@@ -100,8 +100,21 @@ pub fn pickup_item(user_id: String, item_id: i64) -> IFResult {
     let conn = db::get_connection();
     let res = db::add_deliver_info(&conn, user_id, item_id);
 
+    //print!("Transfering HK$3200.3 from buyer acct GC5XYRBR7PT6GPK7IHDW7GJRZRRMNYU2UZF6FCLZHUZSIXVYIKQ2OEAT to escrow acct SDUJFIOGIN2ZJD4GLC4XF4KS57TTIBZRX6S4P7XKT3WMIQ72KWOTZGQR");
+    //print!("Transfering HK$3200.3 from deliverer acct SB3FLZYKCM62BNUSO33COB4KMYMSAXH6XSBZUQTDCTS37PHQM53TMPUZ to escrow acct SDUJFIOGIN2ZJD4GLC4XF4KS57TTIBZRX6S4P7XKT3WMIQ72KWOTZGQR");
+    //print!("Transfering HK$3200.3 from seller acct SB3FLZYKCM62BNUSO33COB4KMYMSAXH6XSBZUQTDCTS37PHQM53TMPUZ to escrow acct SDUJFIOGIN2ZJD4GLC4XF4KS57TTIBZRX6S4P7XKT3WMIQ72KWOTZGQR");
+
     match res {
         Ok(_v) => return IFResult {success: true, err_msg: "".into()},
         Err(e) => return IFResult {success: false, err_msg: e.to_string()}
     }
 }
+
+// #[fce]
+// pub fn deliver_item() -> IFResult {
+//     print!("Transfering HK$3200.3 from escrow acct SDUJFIOGIN2ZJD4GLC4XF4KS57TTIBZRX6S4P7XKT3WMIQ72KWOTZGQR to buyer acct GC5XYRBR7PT6GPK7IHDW7GJRZRRMNYU2UZF6FCLZHUZSIXVYIKQ2OEAT");
+//     print!("Transfering HK$3200.3 from escrow acct SDUJFIOGIN2ZJD4GLC4XF4KS57TTIBZRX6S4P7XKT3WMIQ72KWOTZGQR to deliverer acct SB3FLZYKCM62BNUSO33COB4KMYMSAXH6XSBZUQTDCTS37PHQM53TMPUZ");
+//     print!("Transfering HK$3200.3 from escrow acct SDUJFIOGIN2ZJD4GLC4XF4KS57TTIBZRX6S4P7XKT3WMIQ72KWOTZGQR to seller acct SB3FLZYKCM62BNUSO33COB4KMYMSAXH6XSBZUQTDCTS37PHQM53TMPUZ");
+
+//     IFResult {success: true, err_msg: "".into()} 
+// }
