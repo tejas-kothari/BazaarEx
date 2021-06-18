@@ -1,10 +1,10 @@
 [package]
-name = "xpact"
+name = "bazaar_ex"
 version = "0.1.0"
 edition = "2018"
 
 [[bin]]  # <- binary target
-name = "xpact"
+name = "bazaar_ex"
 path = "src/main.rs"
 
 [dependencies]
