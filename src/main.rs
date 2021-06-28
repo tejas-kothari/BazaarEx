@@ -3,6 +3,8 @@ use fluence::fce;
 use fluence::module_manifest;
 mod db;
 use db::Item;
+use ed25519_dalek::Keypair;
+use rand::rngs::OsRng;
 
 module_manifest!();
 
@@ -53,6 +55,10 @@ pub fn reset_service() -> IFResult {
 #[fce]
 pub fn register_user(stellar_pk: String, user_name: String) -> IFResult {
     let conn = db::get_connection();
+
+    let mut csprng = OsRng {};
+    let _keypair: Keypair = Keypair::generate(&mut csprng);
+
     let res = db::add_user(&conn, stellar_pk, user_name);
 
     IFResult::from_res(res)
