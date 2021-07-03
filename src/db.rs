@@ -19,7 +19,9 @@ pub fn create_tables(conn: &Connection) -> Result<()> {
         "
         create table if not exists users (
             uuid TEXT not null primary key, 
-            name TEXT not null
+            name TEXT not null,
+            public_key TEXT not null,
+            secret_key TEXT not null
         ) without rowid;
         ",
     )?;
@@ -60,13 +62,19 @@ pub fn delete_tables(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-pub fn add_user(conn: &Connection, stellar_pk: String, user_name: String) -> Result<()> {
+pub fn add_user(
+    conn: &Connection,
+    peer_id: String,
+    name: String,
+    public_key: String,
+    secret_key: String,
+) -> Result<()> {
     conn.execute(format!(
         "
-        insert into users (uuid, name)
-        values ('{}', '{}');
+        insert into users (uuid, name, public_key, secret_key)
+        values ('{}', '{}', '{}', '{}');
         ",
-        stellar_pk, user_name
+        peer_id, name, public_key, secret_key
     ))?;
 
     Ok(())
