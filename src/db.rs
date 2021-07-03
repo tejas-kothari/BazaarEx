@@ -1,5 +1,5 @@
-use fce_sqlite_connector::{Connection, Error, Result, Value};
-use fluence::fce;
+use marine_rs_sdk::marine;
+use marine_sqlite_connector::{Connection, Error, Result, Value};
 
 const DB_PATH: &str = "/tmp/fluence_service_db.sqlite";
 
@@ -83,7 +83,7 @@ pub fn get_users(conn: &Connection) -> Result<Vec<String>> {
     Ok(names)
 }
 
-#[fce]
+#[marine]
 #[derive(Default)]
 pub struct Item {
     pub uuid: i64,

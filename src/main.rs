@@ -1,6 +1,6 @@
-use fce_sqlite_connector::Result;
-use fluence::fce;
-use fluence::module_manifest;
+use marine_rs_sdk::marine;
+use marine_rs_sdk::module_manifest;
+use marine_sqlite_connector::Result;
 mod db;
 use db::Item;
 use ed25519_dalek::Keypair;
@@ -10,12 +10,12 @@ module_manifest!();
 
 pub fn main() {}
 
-#[fce]
+#[marine]
 pub fn greeting(name: String) -> String {
     format!("Hi, {}", name)
 }
 
-#[fce]
+#[marine]
 pub struct IFResult {
     pub success: bool,
     pub err_msg: String,
@@ -36,7 +36,7 @@ impl IFResult {
     }
 }
 
-#[fce]
+#[marine]
 pub fn init_service() -> IFResult {
     let conn = db::get_connection();
     let res = db::create_tables(&conn);
@@ -44,7 +44,7 @@ pub fn init_service() -> IFResult {
     IFResult::from_res(res)
 }
 
-#[fce]
+#[marine]
 pub fn reset_service() -> IFResult {
     let conn = db::get_connection();
     let res = db::delete_tables(&conn);
@@ -52,7 +52,7 @@ pub fn reset_service() -> IFResult {
     IFResult::from_res(res)
 }
 
-#[fce]
+#[marine]
 pub fn register_user(stellar_pk: String, user_name: String) -> IFResult {
     let conn = db::get_connection();
 
@@ -64,7 +64,7 @@ pub fn register_user(stellar_pk: String, user_name: String) -> IFResult {
     IFResult::from_res(res)
 }
 
-#[fce]
+#[marine]
 pub fn list_all_users() -> Vec<String> {
     let conn = db::get_connection();
     let users = db::get_users(&conn);
@@ -72,7 +72,7 @@ pub fn list_all_users() -> Vec<String> {
     users.unwrap_or_default()
 }
 
-#[fce]
+#[marine]
 pub fn post_item_for_sale(
     user_id: String,
     item_name: String,
@@ -93,7 +93,7 @@ pub fn post_item_for_sale(
     Item::from_res(item)
 }
 
-#[fce]
+#[marine]
 pub fn list_all_items() -> Vec<Item> {
     let conn = db::get_connection();
     let items = db::get_items(&conn);
@@ -101,7 +101,7 @@ pub fn list_all_items() -> Vec<Item> {
     items.unwrap_or_default()
 }
 
-#[fce]
+#[marine]
 pub fn list_item(item_id: i64) -> Item {
     let conn = db::get_connection();
     let item = db::get_item(&conn, item_id);
@@ -109,7 +109,7 @@ pub fn list_item(item_id: i64) -> Item {
     Item::from_res(item)
 }
 
-#[fce]
+#[marine]
 pub fn buy_item(user_id: String, item_id: i64, dropoff_location: String) -> IFResult {
     let conn = db::get_connection();
     let res = db::add_buying_info(&conn, user_id, item_id, dropoff_location);
@@ -117,7 +117,7 @@ pub fn buy_item(user_id: String, item_id: i64, dropoff_location: String) -> IFRe
     IFResult::from_res(res)
 }
 
-#[fce]
+#[marine]
 pub fn accept_delivery(user_id: String, item_id: i64) -> IFResult {
     let conn = db::get_connection();
     let res = db::add_delivery_info(&conn, user_id, item_id);
