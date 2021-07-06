@@ -55,7 +55,7 @@ pub fn reset_service() -> IFResult {
 }
 
 #[marine]
-pub fn register_user(name: String) -> IFResult {
+pub fn register_user(peer_id: String, name: String) -> IFResult {
     let conn = db::get_connection();
 
     let mut csprng = OsRng {};
@@ -63,7 +63,7 @@ pub fn register_user(name: String) -> IFResult {
     let public_key = hex::encode(keypair.public.as_bytes());
     let secret_key = hex::encode(keypair.secret.as_bytes());
 
-    let res = db::add_user(&conn, get_init_peer_id(), name, public_key, secret_key);
+    let res = db::add_user(&conn, peer_id, name, public_key, secret_key);
 
     IFResult::from_res(res)
 }
@@ -78,6 +78,7 @@ pub fn list_all_users() -> Vec<String> {
 
 #[marine]
 pub fn post_item_for_sale(
+    peer_id: String,
     item_name: String,
     pickup_location: String,
     price: f64,
@@ -86,7 +87,7 @@ pub fn post_item_for_sale(
     let conn = db::get_connection();
     let item = db::add_item(
         &conn,
-        get_init_peer_id(),
+        peer_id,
         item_name,
         pickup_location,
         price,
@@ -113,17 +114,23 @@ pub fn list_item(item_id: i64) -> Item {
 }
 
 #[marine]
-pub fn buy_item(item_id: i64, dropoff_location: String) -> IFResult {
+pub fn buy_item(peer_id: String, item_id: i64, dropoff_location: String) -> IFResult {
     let conn = db::get_connection();
-    let res = db::add_buying_info(&conn, get_init_peer_id(), item_id, dropoff_location);
+    let res = db::add_buying_info(&conn, peer_id, item_id, dropoff_location);
 
     IFResult::from_res(res)
 }
 
 #[marine]
-pub fn accept_delivery(item_id: i64) -> IFResult {
+pub fn accept_delivery(peer_id: String, item_id: i64) -> IFResult {
     let conn = db::get_connection();
-    let res = db::add_delivery_info(&conn, get_init_peer_id(), item_id);
+    let res = db::add_delivery_info(&conn, peer_id, item_id);
 
     IFResult::from_res(res)
+}
+
+#[marine]
+#[link(wasm_import_module = "curl_adapter")]
+extern "C" {
+    pub fn curl_request(curl_cmd: String) -> String;
 }

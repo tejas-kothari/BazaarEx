@@ -1,9 +1,13 @@
 modules_dir = "artifacts/"
 
 [[module]]
+    name = "curl_adapter"
+
+    [module.mounted_binaries]
+    curl = "/usr/bin/curl"
+
+[[module]]
     name = "sqlite3"
-    mem_pages_count = 100
-    logger_enabled = false
 
     [module.wasi]
     preopened_files = ["/tmp"]
@@ -11,9 +15,3 @@ modules_dir = "artifacts/"
 
 [[module]]
 name = "bazaar_ex"
-    mem_pages_count = 1
-    logger_enabled = false
-
-    [module.wasi]
-    preopened_files = ["/tmp"]
-    mapped_dirs = { "tmp" = "/tmp" }
