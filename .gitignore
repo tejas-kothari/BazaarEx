@@ -1,3 +1,5 @@
 /target
 .DS_store
 /artifacts
+/nft_contract/node_modules/
+/nft_contract/build
