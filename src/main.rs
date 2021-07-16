@@ -128,9 +128,3 @@ pub fn accept_delivery(peer_id: String, item_id: i64) -> IFResult {
 
     IFResult::from_res(res)
 }
-
-#[marine]
-#[link(wasm_import_module = "curl_adapter")]
-extern "C" {
-    pub fn curl_request(curl_cmd: String) -> String;
-}

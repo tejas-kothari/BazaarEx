@@ -12,9 +12,8 @@ fn main() {
 }
 
 #[marine]
-pub fn curl_request(curl_cmd: String) -> String {
-    let response = curl(vec![curl_cmd]);
-    String::from_utf8(response.stdout).unwrap()
+pub fn curl_request(curl_cmd: Vec<String>) -> MountedBinaryResult {
+    curl(curl_cmd)
 }
 
 #[marine]
