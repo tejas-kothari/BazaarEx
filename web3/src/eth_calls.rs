@@ -3,7 +3,7 @@ use crate::curl_request_res;
 use crate::eth_utils::{check_response_string, get_nonce};
 use crate::fce_results::JsonRpcResult;
 use crate::jsonrpc_helpers::Request;
-use ethereum_types::{H160, U256};
+use ethereum_types::{H160, H256, U256};
 use jsonrpc_core as rpc;
 use serde::Serialize;
 use serde_json::json;
@@ -46,5 +46,33 @@ pub fn eth_call(url: String, tx: TxCall, tag: String) -> JsonRpcResult {
     let curl_args = Request::new(method, params, id).as_sys_string(&url);
     let response = curl_request_res(curl_args).unwrap();
 
-    check_response_string(response, &id)
+    check_response_string(response, &id, true)
+}
+
+pub fn eth_sendTransaction(url: String, tx: TxCall) -> JsonRpcResult {
+    let method = "eth_sendTransaction".to_string();
+
+    let tx_call_serial = serialize(&tx);
+    let params: rpc::Value = json!(vec![tx_call_serial]);
+
+    let id = get_nonce();
+
+    let curl_args = Request::new(method, params, id).as_sys_string(&url);
+    let response = curl_request_res(curl_args).unwrap();
+
+    check_response_string(response, &id, true)
+}
+
+pub fn eth_getTransactionReceipt(url: String, trans_hash: H256) -> JsonRpcResult {
+    let method = "eth_getTransactionReceipt".to_string();
+
+    let trans_hash_serial = serialize(&trans_hash);
+    let params: rpc::Value = json!(vec![trans_hash_serial]);
+
+    let id = get_nonce();
+
+    let curl_args = Request::new(method, params, id).as_sys_string(&url);
+    let response = curl_request_res(curl_args).unwrap();
+
+    check_response_string(response, &id, false)
 }

@@ -29,17 +29,24 @@ pub struct JsonRpcResult {
     pub id: u64,
 }
 
-impl From<Result<String>> for JsonRpcResult {
-    fn from(result: Result<String>) -> Self {
+impl JsonRpcResult {
+    pub fn from_res(raw_result: Result<String>, result_is_hex: bool) -> Self {
         let jsonrpc = JSON_RPC.into();
-        match result {
+        match raw_result {
             Ok(res) => {
                 let result_obj: Value = serde_json::from_str(&res).unwrap();
                 let id: u64 = serde_json::from_value(result_obj["id"].clone()).unwrap();
-                let mut hex_string: String =
-                    serde_json::from_value(result_obj["result"].clone()).unwrap();
-                hex_string = (&hex_string[2..]).to_string();
-                let result = hex::decode(hex_string).unwrap().clone();
+
+                let result;
+                if result_is_hex {
+                    let mut hex_string: String =
+                        serde_json::from_value(result_obj["result"].clone()).unwrap();
+                    hex_string = (&hex_string[2..]).to_string();
+                    result = hex::decode(hex_string).unwrap();
+                } else {
+                    result = result_obj["result"].to_string().as_bytes().to_vec();
+                }
+
                 Self {
                     jsonrpc,
                     id,

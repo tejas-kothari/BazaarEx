@@ -23,12 +23,14 @@ name = "bazaar_ex"
 version = "0.1.0"
 dependencies = [
  "ed25519-dalek",
+ "ethabi",
  "ethereum-types",
  "hex",
  "log",
  "marine-rs-sdk",
  "marine-sqlite-connector",
  "rand 0.7.3",
+ "serde_json",
  "web3",
 ]
 

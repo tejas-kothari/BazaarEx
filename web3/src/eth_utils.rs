@@ -8,16 +8,16 @@ pub fn get_nonce() -> u64 {
     NONCE_COUNTER.fetch_add(1, Ordering::SeqCst) as u64
 }
 
-pub fn check_response_string(response: String, id: &u64) -> JsonRpcResult {
+pub fn check_response_string(response: String, id: &u64, result_is_hex: bool) -> JsonRpcResult {
     if response.len() == 0 {
         let err_msg = "{\"jsonrpc\":\"$V\",\"id\":$ID,\"error\":{\"code\":-32700,\"message\":Curl connection failed}}";
         let err_msg = err_msg.replace("$ID", &id.to_string());
-        return JsonRpcResult::from(Result::from(Err(err_msg)));
+        return JsonRpcResult::from_res(Result::from(Err(err_msg)), result_is_hex);
     }
 
     match response.contains("error") {
-        true => JsonRpcResult::from(Result::from(Err(response))),
-        false => JsonRpcResult::from(Result::from(Ok(response))),
+        true => JsonRpcResult::from_res(Result::from(Err(response)), result_is_hex),
+        false => JsonRpcResult::from_res(Result::from(Ok(response)), result_is_hex),
     }
 }
 
