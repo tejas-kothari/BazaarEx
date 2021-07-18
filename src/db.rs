@@ -38,6 +38,7 @@ pub fn create_tables(conn: &Connection) -> Result<()> {
             seller_id TEXT not null,
             buyer_id TEXT default null,
             deliverer_id TEXT default null,
+            token_id INTEGER not null,
             FOREIGN KEY (seller_id)
                 REFERENCES users (uuid),
             FOREIGN KEY (buyer_id)
@@ -103,6 +104,7 @@ pub struct Item {
     pub seller_id: String,
     pub buyer_id: String,
     pub deliverer_id: String,
+    pub token_id: i64,
     pub err_msg: String,
     pub success: bool,
 }
@@ -119,6 +121,7 @@ impl Item {
             seller_id: row[6].as_string().ok_or(get_none_error())?.to_string(),
             buyer_id: row[7].as_string().unwrap_or_default().to_string(),
             deliverer_id: row[8].as_string().unwrap_or_default().to_string(),
+            token_id: row[9].as_integer().ok_or(get_none_error())?,
             err_msg: "".to_string(),
             success: true,
         };
@@ -146,13 +149,14 @@ pub fn add_item(
     pickup_location: String,
     price: f64,
     description: String,
+    token_id: i64,
 ) -> Result<Item> {
     conn.execute(format!(
         "
-        insert into items (name, pickup_location, price, description, seller_id)
-        values ('{}', '{}', {}, '{}', '{}');
+        insert into items (name, pickup_location, price, description, seller_id, token_id)
+        values ('{}', '{}', {}, '{}', '{}', '{}');
         ",
-        item_name, pickup_location, price, description, seller_id
+        item_name, pickup_location, price, description, seller_id, token_id
     ))?;
 
     let new_row_id = conn
@@ -221,4 +225,19 @@ pub fn add_delivery_info(conn: &Connection, deliverer_id: String, item_id: i64) 
     ));
 
     res
+}
+
+pub fn peer_id_2_pk(conn: &Connection, peer_id: String) -> Result<String> {
+    let mut cursor = conn
+        .prepare(format!(
+            "select public_key from users where uuid = '{}';",
+            peer_id
+        ))?
+        .cursor();
+
+    let pk = cursor.next()?.ok_or(get_none_error())?[0]
+        .as_string()
+        .ok_or(get_none_error())?;
+
+    Ok(pk.to_string())
 }

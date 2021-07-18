@@ -7,6 +7,9 @@ use ed25519_dalek::Keypair;
 use rand::rngs::OsRng;
 mod auth;
 use auth::get_init_peer_id;
+mod nft_contract_adapter;
+use nft_contract_adapter::{get_name, mint};
+use sha3::{Digest, Keccak256};
 
 module_manifest!();
 
@@ -85,6 +88,19 @@ pub fn post_item_for_sale(
     description: String,
 ) -> Item {
     let conn = db::get_connection();
+
+    let pk_string = db::peer_id_2_pk(&conn, peer_id.clone()).unwrap();
+    let pk_bytes = hex::decode(pk_string.clone()).unwrap();
+
+    let mut hasher = Keccak256::new();
+    hasher.update(pk_bytes.clone());
+    let pk_hash = hex::encode(hasher.finalize());
+    let add = (&pk_hash[24..]).to_string();
+    let mut add_string = "0x".to_string();
+    add_string.push_str(&add);
+
+    let token_id: i64 = mint(add_string);
+
     let item = db::add_item(
         &conn,
         peer_id,
@@ -92,6 +108,7 @@ pub fn post_item_for_sale(
         pickup_location,
         price,
         description,
+        token_id,
     );
 
     Item::from_res(item)

@@ -31,6 +31,7 @@ dependencies = [
  "marine-sqlite-connector",
  "rand 0.7.3",
  "serde_json",
+ "sha3",
  "web3",
 ]
 
