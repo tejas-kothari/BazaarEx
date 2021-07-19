@@ -3,7 +3,7 @@ use marine_rs_sdk::MountedBinaryResult;
 
 mod bytes_type;
 pub mod eth_calls;
-mod eth_utils;
+pub mod eth_utils;
 mod fce_results;
 mod jsonrpc_helpers;
 

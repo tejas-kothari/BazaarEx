@@ -76,3 +76,61 @@ pub fn mint(to_add: String) -> i64 {
 
     token_id
 }
+
+pub fn transfer(from_add: String, to_add: String, token_id: i64) -> bool {
+    let input_from = Param {
+        name: "from".to_string(),
+        kind: ParamType::Address,
+    };
+
+    let input_to = Param {
+        name: "to".to_string(),
+        kind: ParamType::Address,
+    };
+
+    let input_token = Param {
+        name: "tokenId".to_string(),
+        kind: ParamType::Uint(256),
+    };
+
+    let func = Function {
+        name: "transferFrom".to_string(),
+        inputs: vec![input_from, input_to, input_token],
+        outputs: vec![],
+        constant: false,
+        state_mutability: StateMutability::NonPayable,
+    };
+
+    let from = H160::from_str(&from_add).unwrap();
+    let to = H160::from_str(&to_add).unwrap();
+    let token_id_input = U256::from_dec_str(&token_id.to_string()).unwrap();
+
+    let params = TxCall {
+        from: Some(from),
+        to: Some(H160::from_str(CON_ADD).unwrap()),
+        data: Some(
+            func.encode_input(&[
+                Token::Address(from),
+                Token::Address(to),
+                Token::Uint(token_id_input),
+            ])
+            .unwrap()
+            .into(),
+        ),
+        ..Default::default()
+    };
+
+    let res_bytes = eth_sendTransaction(URL.to_string(), params).result;
+    let res_hash = H256::from_slice(&res_bytes);
+
+    let rep_u8 = eth_getTransactionReceipt(URL.to_string(), res_hash).result;
+    let rep_string = std::str::from_utf8(&rep_u8).unwrap();
+    let rep: Value = serde_json::from_str(rep_string).unwrap();
+
+    let mut rep_token_id_hex_string: String =
+        serde_json::from_value(rep["logs"][0]["topics"][3].clone()).unwrap();
+    rep_token_id_hex_string = (&rep_token_id_hex_string[2..]).to_string();
+    let rep_token_id = i64::from_str_radix(&rep_token_id_hex_string.clone(), 16).unwrap();
+
+    rep_token_id == token_id
+}

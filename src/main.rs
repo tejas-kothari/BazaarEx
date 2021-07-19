@@ -8,8 +8,7 @@ use rand::rngs::OsRng;
 mod auth;
 use auth::get_init_peer_id;
 mod nft_contract_adapter;
-use nft_contract_adapter::{get_name, mint};
-use sha3::{Digest, Keccak256};
+use nft_contract_adapter::{mint, transfer};
 
 module_manifest!();
 
@@ -90,15 +89,7 @@ pub fn post_item_for_sale(
     let conn = db::get_connection();
 
     let pk_string = db::peer_id_2_pk(&conn, peer_id.clone()).unwrap();
-    let pk_bytes = hex::decode(pk_string.clone()).unwrap();
-
-    let mut hasher = Keccak256::new();
-    hasher.update(pk_bytes.clone());
-    let pk_hash = hex::encode(hasher.finalize());
-    let add = (&pk_hash[24..]).to_string();
-    let mut add_string = "0x".to_string();
-    add_string.push_str(&add);
-
+    let add_string = web3::eth_utils::pk_to_add(pk_string);
     let token_id: i64 = mint(add_string);
 
     let item = db::add_item(
@@ -144,4 +135,42 @@ pub fn accept_delivery(peer_id: String, item_id: i64) -> IFResult {
     let res = db::add_delivery_info(&conn, peer_id, item_id);
 
     IFResult::from_res(res)
+}
+
+#[marine]
+pub fn pickup_item(peer_id: String, item_id: i64) -> IFResult {
+    let conn = db::get_connection();
+    let item = db::get_item(&conn, item_id).unwrap();
+
+    let from_pk_string = db::peer_id_2_pk(&conn, item.seller_id).unwrap();
+    let from_add_string = web3::eth_utils::pk_to_add(from_pk_string);
+
+    let to_pk_string = db::peer_id_2_pk(&conn, peer_id.clone()).unwrap();
+    let to_add_string = web3::eth_utils::pk_to_add(to_pk_string);
+
+    println!("from: {}", from_add_string);
+    println!("to: {}", to_add_string);
+
+    transfer(from_add_string, to_add_string, item.token_id);
+
+    IFResult::from_res(Ok(()))
+}
+
+#[marine]
+pub fn deliver_item(peer_id: String, item_id: i64) -> IFResult {
+    let conn = db::get_connection();
+    let item = db::get_item(&conn, item_id).unwrap();
+
+    let from_pk_string = db::peer_id_2_pk(&conn, peer_id).unwrap();
+    let from_add_string = web3::eth_utils::pk_to_add(from_pk_string);
+
+    let to_pk_string = db::peer_id_2_pk(&conn, item.buyer_id).unwrap();
+    let to_add_string = web3::eth_utils::pk_to_add(to_pk_string);
+
+    println!("from: {}", from_add_string);
+    println!("to: {}", to_add_string);
+
+    transfer(from_add_string, to_add_string, item.token_id);
+
+    IFResult::from_res(Ok(()))
 }
