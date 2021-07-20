@@ -1,6 +1,6 @@
 use crate::fce_results::JsonRpcResult;
-use sha3::{Digest, Keccak256};
 use std::sync::atomic::{AtomicUsize, Ordering};
+use tiny_keccak::{Hasher, Keccak};
 
 pub const BLOCK_NUMBER_TAGS: [&'static str; 3] = ["latest", "earliest", "pending"];
 pub static NONCE_COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -27,14 +27,13 @@ pub fn wei_to_eth(amount: &u128) -> f64 {
 }
 
 pub fn pk_to_add(pk_string: String) -> String {
-    let pk_bytes = hex::decode(pk_string.clone()).unwrap();
-
-    let mut hasher = Keccak256::new();
-    hasher.update(pk_bytes.clone());
-    let pk_hash = hex::encode(hasher.finalize());
-    let add = (&pk_hash[24..]).to_string();
+    let pk_bytes = hex::decode(pk_string[2..].to_string()).unwrap();
+    let mut hasher = Keccak::v256();
+    hasher.update(&pk_bytes);
+    let mut add_bytes: [u8; 32] = Default::default();
+    hasher.finalize(&mut add_bytes);
+    let add_string_suf = hex::encode(&add_bytes[12..]);
     let mut add_string = "0x".to_string();
-    add_string.push_str(&add);
-
+    add_string.push_str(&add_string_suf);
     add_string
 }

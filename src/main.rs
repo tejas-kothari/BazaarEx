@@ -2,8 +2,7 @@ use marine_rs_sdk::marine;
 use marine_rs_sdk::module_manifest;
 use marine_sqlite_connector::Result;
 mod db;
-use db::Item;
-use ed25519_dalek::Keypair;
+use db::{Item, User};
 use rand::rngs::OsRng;
 mod auth;
 use auth::get_init_peer_id;
@@ -61,9 +60,10 @@ pub fn register_user(peer_id: String, name: String) -> IFResult {
     let conn = db::get_connection();
 
     let mut csprng = OsRng {};
-    let keypair: Keypair = Keypair::generate(&mut csprng);
-    let public_key = hex::encode(keypair.public.as_bytes());
-    let secret_key = hex::encode(keypair.secret.as_bytes());
+    let sk = libsecp256k1::SecretKey::random(&mut csprng);
+    let pk = libsecp256k1::PublicKey::from_secret_key(&sk);
+    let secret_key = hex::encode(sk.serialize());
+    let public_key = hex::encode(pk.serialize());
 
     let res = db::add_user(&conn, peer_id, name, public_key, secret_key);
 
@@ -71,7 +71,7 @@ pub fn register_user(peer_id: String, name: String) -> IFResult {
 }
 
 #[marine]
-pub fn list_all_users() -> Vec<String> {
+pub fn list_all_users() -> Vec<User> {
     let conn = db::get_connection();
     let users = db::get_users(&conn);
 
@@ -142,16 +142,23 @@ pub fn pickup_item(peer_id: String, item_id: i64) -> IFResult {
     let conn = db::get_connection();
     let item = db::get_item(&conn, item_id).unwrap();
 
-    let from_pk_string = db::peer_id_2_pk(&conn, item.seller_id).unwrap();
+    let from_sk_string = db::peer_id_2_sk(&conn, item.seller_id.clone()).unwrap();
+    let from_pk_string = db::peer_id_2_pk(&conn, item.seller_id.clone()).unwrap();
     let from_add_string = web3::eth_utils::pk_to_add(from_pk_string);
+    println!("from_add_string: {}", from_add_string);
 
     let to_pk_string = db::peer_id_2_pk(&conn, peer_id.clone()).unwrap();
     let to_add_string = web3::eth_utils::pk_to_add(to_pk_string);
 
-    println!("from: {}", from_add_string);
-    println!("to: {}", to_add_string);
-
-    transfer(from_add_string, to_add_string, item.token_id);
+    println!(
+        "{}",
+        transfer(
+            from_sk_string,
+            from_add_string,
+            to_add_string,
+            item.token_id,
+        )
+    );
 
     IFResult::from_res(Ok(()))
 }
@@ -161,16 +168,19 @@ pub fn deliver_item(peer_id: String, item_id: i64) -> IFResult {
     let conn = db::get_connection();
     let item = db::get_item(&conn, item_id).unwrap();
 
-    let from_pk_string = db::peer_id_2_pk(&conn, peer_id).unwrap();
+    let from_sk_string = db::peer_id_2_sk(&conn, peer_id.clone()).unwrap();
+    let from_pk_string = db::peer_id_2_pk(&conn, peer_id.clone()).unwrap();
     let from_add_string = web3::eth_utils::pk_to_add(from_pk_string);
 
     let to_pk_string = db::peer_id_2_pk(&conn, item.buyer_id).unwrap();
     let to_add_string = web3::eth_utils::pk_to_add(to_pk_string);
 
-    println!("from: {}", from_add_string);
-    println!("to: {}", to_add_string);
-
-    transfer(from_add_string, to_add_string, item.token_id);
+    transfer(
+        from_sk_string,
+        from_add_string,
+        to_add_string,
+        item.token_id,
+    );
 
     IFResult::from_res(Ok(()))
 }

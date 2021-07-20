@@ -81,15 +81,34 @@ pub fn add_user(
     Ok(())
 }
 
-pub fn get_users(conn: &Connection) -> Result<Vec<String>> {
+#[marine]
+#[derive(Default)]
+pub struct User {
+    pub uuid: String,
+    pub name: String,
+    pub public_key: String,
+}
+
+impl User {
+    pub fn from_row(row: &[Value]) -> Result<User> {
+        let user = User {
+            uuid: row[0].as_string().ok_or(get_none_error())?.to_string(),
+            name: row[1].as_string().ok_or(get_none_error())?.to_string(),
+            public_key: row[2].as_string().ok_or(get_none_error())?.to_string(),
+        };
+
+        Ok(user)
+    }
+}
+pub fn get_users(conn: &Connection) -> Result<Vec<User>> {
     let mut cursor = conn.prepare("select * from users;")?.cursor();
 
-    let mut names = Vec::new();
+    let mut users = Vec::new();
     while let Some(row) = cursor.next()? {
-        names.push(row[0].as_string().ok_or(get_none_error())?.into())
+        users.push(User::from_row(row)?);
     }
 
-    Ok(names)
+    Ok(users)
 }
 
 #[marine]
@@ -240,4 +259,19 @@ pub fn peer_id_2_pk(conn: &Connection, peer_id: String) -> Result<String> {
         .ok_or(get_none_error())?;
 
     Ok(pk.to_string())
+}
+
+pub fn peer_id_2_sk(conn: &Connection, peer_id: String) -> Result<String> {
+    let mut cursor = conn
+        .prepare(format!(
+            "select secret_key from users where uuid = '{}';",
+            peer_id
+        ))?
+        .cursor();
+
+    let sk = cursor.next()?.ok_or(get_none_error())?[0]
+        .as_string()
+        .ok_or(get_none_error())?;
+
+    Ok(sk.to_string())
 }

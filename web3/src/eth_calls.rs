@@ -76,3 +76,32 @@ pub fn eth_getTransactionReceipt(url: String, trans_hash: H256) -> JsonRpcResult
 
     check_response_string(response, &id, false)
 }
+
+pub fn eth_sendRawTransaction(url: String, signedTx: String) -> JsonRpcResult {
+    let method = "eth_sendRawTransaction".to_string();
+
+    let signed_tx_serial = serialize(&signedTx);
+    let params: rpc::Value = json!(vec![signed_tx_serial]);
+
+    let id = get_nonce();
+
+    let curl_args = Request::new(method, params, id).as_sys_string(&url);
+    let response = curl_request_res(curl_args).unwrap();
+
+    check_response_string(response, &id, true)
+}
+
+pub fn eth_getBalance(url: String, add: String) -> JsonRpcResult {
+    let method = "eth_getBalance".to_string();
+
+    let add_serial = serialize(&add);
+    let tag_serial = serialize(&"latest".to_string());
+    let params: rpc::Value = json!(vec![add_serial, tag_serial]);
+
+    let id = get_nonce();
+
+    let curl_args = Request::new(method, params, id).as_sys_string(&url);
+    let response = curl_request_res(curl_args).unwrap();
+
+    check_response_string(response, &id, true)
+}
