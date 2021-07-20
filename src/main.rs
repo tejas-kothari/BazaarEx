@@ -7,7 +7,7 @@ use rand::rngs::OsRng;
 mod auth;
 use auth::get_init_peer_id;
 mod nft_contract_adapter;
-use nft_contract_adapter::{mint, transfer};
+use nft_contract_adapter::{fund_acct, mint, transfer};
 
 module_manifest!();
 
@@ -65,7 +65,11 @@ pub fn register_user(peer_id: String, name: String) -> IFResult {
     let secret_key = hex::encode(sk.serialize());
     let public_key = hex::encode(pk.serialize());
 
-    let res = db::add_user(&conn, peer_id, name, public_key, secret_key);
+    let res = db::add_user(&conn, peer_id, name, public_key.clone(), secret_key);
+
+    // For demo use only! (Transfers 1 ETH to user account)
+    let add_string = web3::eth_utils::pk_to_add(public_key.clone());
+    fund_acct(add_string);
 
     IFResult::from_res(res)
 }

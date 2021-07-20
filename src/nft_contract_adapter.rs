@@ -149,3 +149,28 @@ pub fn transfer(from_sk: String, from_add: String, to_add: String, token_id: i64
 
     rep_token_id == token_id
 }
+
+// For demo use only! (Transfers 1 ETH to user account)
+pub fn fund_acct(add: String) -> bool {
+    let params = TxCall {
+        gas: Some(U256::from_dec_str("4600000").unwrap()),
+        gas_price: Some(U256::from_dec_str("20000000000").unwrap()),
+        from: Some(H160::from_str(CON_OWNER).unwrap()),
+        to: Some(H160::from_str(&add).unwrap()),
+        value: Some(U256::from_dec_str("1000000000000000000").unwrap()),
+        ..Default::default()
+    };
+
+    let res_obj = eth_sendTransaction(URL.to_string(), params);
+    let res_bytes = res_obj.result;
+    let res_hash = H256::from_slice(&res_bytes);
+
+    let rep_u8 = eth_getTransactionReceipt(URL.to_string(), res_hash).result;
+    let rep_string = std::str::from_utf8(&rep_u8).unwrap();
+    let rep: Value = serde_json::from_str(rep_string).unwrap();
+
+    let fund_res: String = serde_json::from_value(rep["status"].clone()).unwrap();
+    println!("fund res: {}", fund_res);
+
+    true
+}
