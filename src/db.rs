@@ -69,7 +69,7 @@ pub fn add_user(
     name: String,
     public_key: String,
     secret_key: String,
-) -> Result<()> {
+) -> Result<User> {
     conn.execute(format!(
         "
         insert into users (uuid, name, public_key, secret_key)
@@ -78,7 +78,7 @@ pub fn add_user(
         peer_id, name, public_key, secret_key
     ))?;
 
-    Ok(())
+    get_user(conn, peer_id)
 }
 
 #[marine]
@@ -87,19 +87,39 @@ pub struct User {
     pub uuid: String,
     pub name: String,
     pub public_key: String,
+    pub address: String,
+    pub err_msg: String,
+    pub success: bool,
 }
 
 impl User {
     pub fn from_row(row: &[Value]) -> Result<User> {
-        let user = User {
+        let mut user = User {
             uuid: row[0].as_string().ok_or(get_none_error())?.to_string(),
             name: row[1].as_string().ok_or(get_none_error())?.to_string(),
             public_key: row[2].as_string().ok_or(get_none_error())?.to_string(),
+            err_msg: "".to_string(),
+            success: true,
+            ..Default::default()
         };
+        user.address = web3::eth_utils::pk_to_add(user.public_key.clone());
 
         Ok(user)
     }
+
+    pub fn from_res(res: Result<User>) -> User {
+        match res {
+            Ok(v) => v,
+            Err(e) => {
+                let mut res_user: User = Default::default();
+                res_user.err_msg = e.to_string();
+                res_user.success = false;
+                res_user
+            }
+        }
+    }
 }
+
 pub fn get_users(conn: &Connection) -> Result<Vec<User>> {
     let mut cursor = conn.prepare("select * from users;")?.cursor();
 
@@ -109,6 +129,16 @@ pub fn get_users(conn: &Connection) -> Result<Vec<User>> {
     }
 
     Ok(users)
+}
+
+pub fn get_user(conn: &Connection, peer_id: String) -> Result<User> {
+    let mut cursor = conn
+        .prepare(format!("select * from users where uuid = '{}';", peer_id))?
+        .cursor();
+
+    let row = cursor.next()?.ok_or(get_none_error())?;
+    let found_user = User::from_row(row);
+    Ok(found_user?)
 }
 
 #[marine]

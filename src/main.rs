@@ -74,7 +74,7 @@ pub fn reset_service() -> IFResult {
 }
 
 #[marine]
-pub fn register_user(peer_id: String, name: String) -> IFResult {
+pub fn register_user(peer_id: String, name: String) -> User {
     let conn = db::get_connection();
 
     let mut csprng = OsRng {};
@@ -89,7 +89,7 @@ pub fn register_user(peer_id: String, name: String) -> IFResult {
     let add_string = web3::eth_utils::pk_to_add(public_key.clone());
     fund_acct(add_string);
 
-    IFResult::from_res(res)
+    User::from_res(res)
 }
 
 #[marine]
