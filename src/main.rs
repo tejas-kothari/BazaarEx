@@ -1,11 +1,11 @@
 use marine_rs_sdk::marine;
 use marine_rs_sdk::module_manifest;
-use marine_sqlite_connector::Result;
+use marine_sqlite_connector::{Error, Result};
 mod db;
 use db::{Item, User};
 use rand::rngs::OsRng;
 mod auth;
-use auth::get_init_peer_id;
+use auth::{am_i_owner, get_init_peer_id};
 mod nft_contract_adapter;
 use nft_contract_adapter::{fund_acct, mint, transfer};
 
@@ -41,16 +41,34 @@ impl IFResult {
 
 #[marine]
 pub fn init_service() -> IFResult {
-    let conn = db::get_connection();
-    let res = db::create_tables(&conn);
+    let res;
+
+    if am_i_owner() {
+        let conn = db::get_connection();
+        res = db::create_tables(&conn);
+    } else {
+        res = Err(Error {
+            code: None,
+            message: Some("You are not the owner!".to_string()),
+        });
+    }
 
     IFResult::from_res(res)
 }
 
 #[marine]
 pub fn reset_service() -> IFResult {
-    let conn = db::get_connection();
-    let res = db::delete_tables(&conn);
+    let res;
+
+    if am_i_owner() {
+        let conn = db::get_connection();
+        res = db::delete_tables(&conn);
+    } else {
+        res = Err(Error {
+            code: None,
+            message: Some("You are not the owner!".to_string()),
+        });
+    }
 
     IFResult::from_res(res)
 }
