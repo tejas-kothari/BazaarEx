@@ -12,7 +12,7 @@ Built on [Fluence](https://fluence.network/) and [Ethereum](https://ethereum.org
 
 1.  `cd nft_contract`
 2.  `npm install`
-3.
+3.  `truffle compile`
 4.  `truffle develop` - This will start the RPC server and development blockchain environment
 5.  `migrate` in Truffle console to deploy contract
 6.  Note down the ERC721 contract address and owner address
