@@ -1,6 +1,6 @@
 use marine_rs_sdk::marine;
 use marine_rs_sdk::module_manifest;
-use marine_sqlite_connector::{Error, Result};
+use marine_sqlite_connector::Result;
 mod db;
 use db::{Item, User};
 use rand::rngs::OsRng;
@@ -37,58 +37,51 @@ impl IFResult {
             },
         }
     }
+
+    pub fn from_err_str(e: &str) -> IFResult {
+        IFResult {
+            success: false,
+            err_msg: e.to_string(),
+        }
+    }
 }
 
 #[marine]
 pub fn init_service() -> IFResult {
-    let res;
-
-    if am_i_owner() {
-        let conn = db::get_connection();
-        res = db::create_tables(&conn);
-    } else {
-        res = Err(Error {
-            code: None,
-            message: Some("You are not the owner!".to_string()),
-        });
+    if !am_i_owner() {
+        return IFResult::from_err_str("You are not the owner!");
     }
 
+    let conn = db::get_connection();
+    let res = db::create_tables(&conn);
     IFResult::from_res(res)
 }
 
 #[marine]
 pub fn reset_service() -> IFResult {
-    let res;
-
-    if am_i_owner() {
-        let conn = db::get_connection();
-        res = db::delete_tables(&conn);
-    } else {
-        res = Err(Error {
-            code: None,
-            message: Some("You are not the owner!".to_string()),
-        });
+    if !am_i_owner() {
+        return IFResult::from_err_str("You are not the owner!");
     }
 
+    let conn = db::get_connection();
+    let res = db::delete_tables(&conn);
     IFResult::from_res(res)
 }
 
 #[marine]
 pub fn register_user(peer_id: String, name: String) -> User {
-    let conn = db::get_connection();
-
     let mut csprng = OsRng {};
     let sk = libsecp256k1::SecretKey::random(&mut csprng);
     let pk = libsecp256k1::PublicKey::from_secret_key(&sk);
     let secret_key = hex::encode(sk.serialize());
     let public_key = hex::encode(pk.serialize());
 
-    let res = db::add_user(&conn, peer_id, name, public_key.clone(), secret_key);
-
     // For demo use only! (Transfers 1 ETH to user account)
     let add_string = web3::eth_utils::pk_to_add(public_key.clone());
     fund_acct(add_string);
 
+    let conn = db::get_connection();
+    let res = db::add_user(&conn, peer_id, name, public_key.clone(), secret_key);
     User::from_res(res)
 }
 
