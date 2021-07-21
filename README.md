@@ -1,8 +1,10 @@
 # BazaarEx
 
-An online marketplace with decentralised logistics for second-hand electronics goods
+An online marketplace for second-hand electronic goods with decentralised logistics
 
-###### Built on Fluence and Ethereum
+Built on [Fluence](https://fluence.network/) and [Ethereum](https://ethereum.org/en/)
+
+> Do not use for production!
 
 ## Usage
 
@@ -21,3 +23,4 @@ An online marketplace with decentralised logistics for second-hand electronics g
 
 1.  Change `CON_OWNER` and `CON_ADD` variables to owner and contract address respectively in `src/nft_contract_adapter.rs`
 2.  `./build.sh`
+    > Note: For demo purposes, each account registered receives 1 ETH from the contract owner
