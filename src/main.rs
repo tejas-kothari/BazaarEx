@@ -179,7 +179,7 @@ pub fn pickup_item(peer_id: String, item_id: i64) -> IFResult {
 }
 
 #[marine]
-pub fn deliver_item(peer_id: String, item_id: i64) -> IFResult {
+pub fn dropoff_item(peer_id: String, item_id: i64) -> IFResult {
     let conn = db::get_connection();
     let item = db::get_item(&conn, item_id).unwrap();
 
