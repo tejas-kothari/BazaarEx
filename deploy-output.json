@@ -1,0 +1,53 @@
+{
+    "services": {
+        "bazaar_ex": {
+            "dependencies": [
+                "curl_adapter",
+                "sqlite3",
+                "bazaar_ex"
+            ],
+            "node": "12D3KooWFRqA6Ct5NHzRcAfY8socQasmEvFgM8VfwvET4QkkQrPp",
+            "hashDependencies": [
+                "hash:08c1656b06c99e8c684007dff31ed25a25d5cc9240d160cc5bb42e5155c09e8e",
+                "hash:558a483b1c141b66765947cf6a674abe5af2bb5b86244dfca41e5f5eb2a86e9e",
+                "hash:88b5fe441f96f651cb3ef70b6dd45367444b18e70e6e0b1b0010cd636aeaf5ed"
+            ],
+            "blueprint_id": "cc696cab388d22c156bd546ae242a0d7b0e86b4372a2b65f2502ee3d30cdf888",
+            "id": "53fd5805-3864-4618-a530-58849f034e83"
+        }
+    },
+    "modules": {
+        "curl_adapter": {
+            "file": "artifacts/curl_adapter.wasm",
+            "config": {
+                "mounted_binaries": {
+                    "curl": "/usr/bin/curl"
+                }
+            },
+            "hash": "08c1656b06c99e8c684007dff31ed25a25d5cc9240d160cc5bb42e5155c09e8e"
+        },
+        "sqlite3": {
+            "file": "artifacts/sqlite3.wasm",
+            "config": {
+                "preopened_files": [
+                    "/tmp"
+                ],
+                "mapped_dirs": {
+                    "tmp": "/tmp"
+                }
+            },
+            "hash": "558a483b1c141b66765947cf6a674abe5af2bb5b86244dfca41e5f5eb2a86e9e"
+        },
+        "bazaar_ex": {
+            "file": "artifacts/bazaar_ex.wasm",
+            "config": {},
+            "hash": "88b5fe441f96f651cb3ef70b6dd45367444b18e70e6e0b1b0010cd636aeaf5ed"
+        }
+    },
+    "scripts": {
+        "init_service": {
+            "file": "air-scripts/init_service.air"
+        }
+    },
+    "script_storage": {}
+}

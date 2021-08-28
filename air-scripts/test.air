@@ -1,0 +1,7 @@
+(xor
+    (seq
+        (call relay (service "register_user") ["abc123" "Sum Ting Wong"] result)
+        (call %init_peer_id% (returnService "run") [result])
+    )
+    (call %init_peer_id% (returnService "run") [%last_error%])
+)

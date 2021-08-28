@@ -9,7 +9,7 @@ use web3::eth_calls::{
 
 const CON_OWNER: &str = "0x8f7eF7aC4eE253aE02319018ea7c7F1aBd1320F6";
 const CON_ADD: &str = "0xb251d7EDF1A503643F8617593179aC547D4d9dc2";
-const URL: &str = "http://127.0.0.1:9545/";
+const URL: &str = "host.docker.internal:9545/";
 const CHAIN_ID: u64 = 1337;
 
 pub fn get_name() -> String {
