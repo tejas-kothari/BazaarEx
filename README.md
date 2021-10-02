@@ -6,6 +6,10 @@ Built on [Fluence](https://fluence.network/) and [Ethereum](https://ethereum.org
 
 > Do not use for production!
 
+## Documentation
+Medium article: https://medium.com/@tejas23682320/bazaarex-a-decentralised-marketplace-built-on-fluence-4102697377ae
+Gitbook: https://xpact.gitbook.io/bazaarex/
+
 ## Usage
 
 ### Build and deploy ERC721 smart contract using Truffle
